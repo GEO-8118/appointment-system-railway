@@ -1,7 +1,7 @@
 <x-layout>
     <div class="max-w-2xl mx-auto bg-[#1a1a1e] rounded-2xl shadow-xl border border-slate-800/80 p-6 sm:p-8 mt-4">
         <div class="mb-6 border-b border-slate-800 pb-4">
-            <h1 class="text-2xl font-bold text-white tracking-tight">Request an Appointment</h1>
+            <h1 class="text-2xl font-bold text-white tracking-tight">Request a book</h1>
             <p class="text-slate-400 text-sm mt-1">Select your service parameters and an available timing window below.</p>
         </div>
 
@@ -18,7 +18,7 @@
                 </div>
             @endif
             <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Select Target Service(s)</label>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Select Book(s)</label>
                 <select name="service_ids[]" multiple required size="5" class="w-full border border-slate-800 rounded-xl px-4 py-3 bg-[#121214] text-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm transition-all">
                     @foreach($services as $s)
                         <option value="{{ $s->id }}">{{ $s->name }} — (${{ number_format($s->price, 2) }})</option>
@@ -57,7 +57,7 @@
                         }
                     }
                 }' x-init="init()" x-effect="updateSelection()" class="space-y-4">
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Select Available Schedule Window</label>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Select Available to borrow</label>
                 <div class="grid gap-4">
                     <div>
                         <input
@@ -122,7 +122,7 @@
 
             @if(isset($userAppointments) && $userAppointments->isNotEmpty())
                 <div class="rounded-2xl border border-slate-800 bg-[#121214] p-4">
-                    <h2 class="text-sm font-semibold text-white mb-3">Your existing appointments</h2>
+                    <h2 class="text-sm font-semibold text-white mb-3">Your borrowed books</h2>
                     <div class="space-y-3 text-slate-300 text-sm">
                         @foreach($userAppointments as $appt)
                             <div class="rounded-xl border border-slate-700 bg-slate-900/60 p-3">
