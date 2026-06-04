@@ -15,7 +15,7 @@
                 <div class="h-16 flex items-center px-4 border-b border-slate-800 justify-between">
                     <div class="flex items-center gap-3 overflow-hidden" x-show="sidebarOpen">
                         <span class="p-2 bg-blue-600 rounded-lg text-white font-bold text-sm">📆</span>
-                        <h1 class="font-bold text-sm text-white whitespace-nowrap">ReserveIt</h1>
+                        <h1 class="font-bold text-sm text-white whitespace-nowrap">Library Management System</h1>
                     </div>
                     <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700">
                         <svg class="w-5 h-5 transition-transform" :class="{'rotate-180': !sidebarOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
@@ -38,7 +38,7 @@
                     @if(auth()->check() && auth()->user()->role !== 'admin')
                         <a href="/appointments/book" class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all {{ request()->is('appointments/book') ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-400' }}">
                             <span>💼</span>
-                            <span x-show="sidebarOpen" class="text-sm font-medium">Book Session</span>
+                            <span x-show="sidebarOpen" class="text-sm font-medium">Borrow Book</span>
                         </a>
                     @endif
                 </nav>
