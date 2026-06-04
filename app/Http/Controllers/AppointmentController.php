@@ -12,19 +12,32 @@ class AppointmentController extends Controller
     public function index()
     {
         $user = auth()->user();
+
         if ($user->role === 'admin') {
-            $appointments = Appointment::with(['user', 'service', 'services', 'schedule'])->latest()->get();
+            $appointments = Appointment::with([
+                'user',
+                'service',
+                'services',
+                'schedule'
+            ])->latest()->get();
+
             return view('admin.dashboard', compact('appointments'));
         }
-        
-        $appointments = Appointment::where('user_id', $user->id)->with(['service', 'services', 'schedule'])->latest()->get();
+
+        $appointments = Appointment::where('user_id', $user->id)
+            ->with(['service', 'services', 'schedule'])
+            ->latest()
+            ->get();
+
         return view('customer.dashboard', compact('appointments'));
     }
 
     public function create()
     {
         $services = Service::all();
+
         $schedules = Schedule::where('is_booked', false)->get();
+
         $schedulesByDate = $schedules->groupBy('available_date')->map(function ($group) {
             return $group->map(function ($item) {
                 return [
@@ -36,10 +49,21 @@ class AppointmentController extends Controller
         });
 
         $userAppointments = auth()->check()
-            ? Appointment::where('user_id', auth()->id())->with(['services', 'service', 'schedule'])->latest()->get()
+            ? Appointment::where('user_id', auth()->id())
+                ->with(['services', 'service', 'schedule'])
+                ->latest()
+                ->get()
             : collect();
 
-        return view('customer.book', compact('services', 'schedules', 'schedulesByDate', 'userAppointments'));
+        return view(
+            'customer.book',
+            compact(
+                'services',
+                'schedules',
+                'schedulesByDate',
+                'userAppointments'
+            )
+        );
     }
 
     public function store(Request $request)
@@ -57,13 +81,15 @@ class AppointmentController extends Controller
         $serviceIds = $request->input('service_ids');
 
         $scheduleId = $request->input('schedule_id');
-        if (! $scheduleId) {
+
+        if (!$scheduleId) {
             $schedule = Schedule::create([
                 'available_date' => $request->input('schedule_date'),
                 'start_time' => $request->input('schedule_start_time'),
                 'end_time' => $request->input('schedule_end_time'),
                 'is_booked' => true,
             ]);
+
             $scheduleId = $schedule->id;
         }
 
@@ -76,35 +102,56 @@ class AppointmentController extends Controller
         ]);
 
         $appointment->services()->sync($serviceIds);
+
         if ($request->filled('schedule_id')) {
-            Schedule::where('id', $request->schedule_id)->update(['is_booked' => true]);
+            Schedule::where('id', $request->schedule_id)
+                ->update(['is_booked' => true]);
         }
 
-        return redirect('/dashboard')->with('success', 'Appointment registration submitted successfully.');
+        return redirect('/dashboard')
+            ->with('success', 'Appointment registration submitted successfully.');
     }
 
     public function updateStatus(Request $request, Appointment $appointment)
     {
-        $request->validate(['status' => 'required|in:approved,rejected']);
-        $appointment->update(['status' => $request->status]);
+        $request->validate([
+            'status' => 'required|in:approved,rejected'
+        ]);
+
+        $appointment->update([
+            'status' => $request->status
+        ]);
 
         if ($request->status === 'rejected') {
-            $appointment->schedule->update(['is_booked' => false]);
+            $appointment->schedule->update([
+                'is_booked' => false
+            ]);
         }
 
-        return redirect('/dashboard')->with('success', 'Appointment tracking baseline modified.');
+        return redirect('/dashboard')
+            ->with('success', 'Appointment tracking baseline modified.');
     }
 
     public function destroy(Appointment $appointment)
     {
-        $appointment->schedule->update(['is_booked' => false]);
+        $appointment->schedule->update([
+            'is_booked' => false
+        ]);
+
         $appointment->delete();
-        return redirect('/dashboard')->with('success', 'Appointment clean structural purge complete.');
+
+        return redirect('/dashboard')
+            ->with('success', 'Appointment clean structural purge complete.');
     }
 
     public function exportJson()
     {
-        $data = Appointment::with(['user', 'service', 'schedule'])->get();
+        $data = Appointment::with([
+            'user',
+            'service',
+            'schedule'
+        ])->get();
+
         return response()->json($data, 200, [
             'Content-Disposition' => 'attachment; filename="appointment_report.json"'
         ]);
@@ -112,11 +159,15 @@ class AppointmentController extends Controller
 
     public function importCsv(Request $request)
     {
-        $request->validate(['csv_file' => 'required|file|mimes:csv,txt']);
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt'
+        ]);
+
         $file = fopen($request->file('csv_file')->getRealPath(), 'r');
-        
-        fgetcsv($file); // Skip headers row column indexes
-        while (($row = fgetcsv($file)) !== FALSE) {
+
+        fgetcsv($file);
+
+        while (($row = fgetcsv($file)) !== false) {
             Service::create([
                 'name' => $row[0],
                 'description' => $row[1] ?? '',
@@ -124,7 +175,31 @@ class AppointmentController extends Controller
                 'price' => floatval($row[3])
             ]);
         }
+
         fclose($file);
-        return back()->with('success', 'Bulk catalog values parsed and appended.');
+
+        return back()->with(
+            'success',
+            'Bulk catalog values parsed and appended.'
+        );
+    }
+
+    public function addService(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'duration_minutes' => 'required|integer',
+            'price' => 'required|numeric'
+        ]);
+
+        Service::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'duration_minutes' => $request->duration_minutes,
+            'price' => $request->price
+        ]);
+
+        return back()->with('success', 'Service added successfully.');
     }
 }

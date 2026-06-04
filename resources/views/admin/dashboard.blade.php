@@ -3,37 +3,65 @@
         <x-nav-link href="/dashboard" active="true">Admin Dashboard Control</x-nav-link>
     </x-slot:nav>
 
-    <div class="md:flex md:items-center md:justify-between mb-8 space-y-4 md:space-y-0">
+    <div class="md:flex md:items-center md:justify-between mb-8">
         <div>
             <h1 class="text-3xl font-extrabold text-slate-900">Admin Controls</h1>
             <p class="text-slate-500 mt-1">
                 Review user appointments and manage system catalog metadata configurations.
             </p>
         </div>
+    </div>
 
-        <div class="flex flex-wrap items-center gap-3">
-            <a href="{{ route('reports.exportJson') }}"
-               class="inline-flex items-center bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition">
-                📥 Export Appointment JSON
-            </a>
-
-            <form action="{{ route('services.importCsv') }}"
-                  method="POST"
-                  enctype="multipart/form-data"
-                  class="flex items-center bg-white border border-slate-300 p-1.5 rounded-xl shadow-sm">
-                @csrf
-
-                <input type="file"
-                       name="csv_file"
-                       required
-                       class="text-xs text-slate-500 file:mr-3 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 cursor-pointer w-44">
-
-                <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-2.5 py-1 rounded-lg transition">
-                    Import Services
-                </button>
-            </form>
+    @if(session('success'))
+        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+            {{ session('success') }}
         </div>
+    @endif
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8">
+        <h2 class="text-xl font-bold mb-4">Add New Service</h2>
+
+        <form action="{{ route('services.add') }}" method="POST">
+            @csrf
+
+            <div class="grid gap-4">
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Service Name"
+                    required
+                    class="border border-slate-300 rounded-lg px-4 py-2 w-full">
+
+                <textarea
+                    name="description"
+                    placeholder="Description"
+                    required
+                    class="border border-slate-300 rounded-lg px-4 py-2 w-full"></textarea>
+
+                <input
+                    type="number"
+                    name="duration_minutes"
+                    placeholder="Duration (Minutes)"
+                    required
+                    class="border border-slate-300 rounded-lg px-4 py-2 w-full">
+
+                <input
+                    type="number"
+                    step="0.01"
+                    name="price"
+                    placeholder="Price"
+                    required
+                    class="border border-slate-300 rounded-lg px-4 py-2 w-full">
+
+                <button
+                    type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg">
+                    Add Service
+                </button>
+
+            </div>
+        </form>
     </div>
 
     <div class="bg-white shadow-sm border border-slate-200 rounded-2xl overflow-hidden">
@@ -50,23 +78,30 @@
 
             <tbody class="divide-y divide-slate-100 text-sm">
                 @forelse($appointments as $app)
+
                     <tr class="hover:bg-slate-50 transition">
 
                         <td class="p-4 font-semibold text-slate-900">
                             {{ $app->user->name }}
+
                             <span class="block text-xs text-slate-400 font-normal">
                                 {{ $app->user->email }}
                             </span>
                         </td>
 
                         <td class="p-4 text-slate-700">
-                            {{ $app->services->isNotEmpty() ? $app->services->pluck('name')->join(', ') : $app->service->name }}
+                            {{ $app->services->isNotEmpty()
+                                ? $app->services->pluck('name')->join(', ')
+                                : $app->service->name }}
                         </td>
 
                         <td class="p-4 text-slate-600 font-medium">
                             {{ $app->schedule->available_date }}
+
                             <span class="block text-xs text-slate-400 font-normal">
-                                {{ $app->schedule->start_time }} - {{ $app->schedule->end_time }}
+                                {{ $app->schedule->start_time }}
+                                -
+                                {{ $app->schedule->end_time }}
                             </span>
                         </td>
 
@@ -131,12 +166,15 @@
                         </td>
 
                     </tr>
+
                 @empty
+
                     <tr>
                         <td colspan="5" class="p-8 text-center text-slate-400">
                             No system records available.
                         </td>
                     </tr>
+
                 @endforelse
             </tbody>
         </table>
