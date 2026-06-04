@@ -2,7 +2,7 @@
     <div class="flex justify-between items-center mb-8">
         <div>
             <h1 class="text-3xl font-extrabold text-white tracking-tight">My Appointments</h1>
-            <p class="text-slate-400 mt-1">Track and manage your requested schedule slots.</p>
+            <p class="text-slate-400 mt-1">Track and manage your requested Books.</p>
         </div>
         <a href="/appointments/book" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm shadow-md transition-all">
             + Book Appointment
